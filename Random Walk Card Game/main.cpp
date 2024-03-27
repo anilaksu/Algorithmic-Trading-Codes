@@ -8,24 +8,29 @@
 #include <iostream>
 #include<cstdlib>
 #include <vector>
+#include <algorithm>  // this header file contains next_permutation function
 
 using namespace std;
 
 // Function Prototypes
 void getNumberofCards(int& N);
 void checkEven(int N);
-vector<bool> getRandomCards(int N);
+int factorial(int n);
+void getRandomCards(int* cards, int N);
+int getMaxPayoff(int* cards, int N);
 
 int main() {
 
-	int N;				 // Number or cards
-	vector<bool> cards;  // Random green and red cards
-
+	int N;						 // Number or cards
 	getNumberofCards(N);		 // Here we get number of cards from the user
-	cards = getRandomCards(N);   // Here we create number of random green and red cards
+
+	int* cards = new int[N];     // Random green and red cards
+	getRandomCards(cards, N);    // Here we create number of random green and red cards
 	
-	for (bool card : cards)
-		cout << (card ? "Red" : "Green") << endl;
+	//for ( int i = 0; i < N ; i++)
+	//	cout << (cards[i] ? "Red" : "Green") << endl;
+
+	cout << "Your maximum payoff is: " << getMaxPayoff(cards, N) << endl;
 
 	return 0;
 }
@@ -41,7 +46,7 @@ void checkEven(int N) // Throws exceptions
 
 }
 
-void getNumberofCards(int& N)	 // Rethrows exceptions
+void getNumberofCards(int& N)		// Rethrows exceptions
 {
 	cout << "Please enter even number for the amount of cards!" << endl;
 	cin >> N;
@@ -54,20 +59,40 @@ void getNumberofCards(int& N)	 // Rethrows exceptions
 	{
 		cout << err.what() << endl;
 		getNumberofCards(N);
-
 	}
 }
 
-
-vector<bool> getRandomCards(int N)
+int factorial(int n)
 {
-	vector<bool> cards; // Here we store 1 as red and 0 as green
+	// single line to find factorial 
+	return (n == 1 || n == 0) ? 1 : n * factorial(n - 1);
+}
+
+
+void getRandomCards(int* cards, int N)
+{	
 	// Providing a seed value
 	srand((unsigned)time(NULL));
 
-	// Get random cards 
+	// Here we store 1 as red and 0 as green
 	for (int i = 0; i < N; i++)
-		cards.push_back(rand() % 2);
+		cards[i] = (i < N/2 ? false : true); 
+	
+	// Here we randomly shuffle the cards
+	random_shuffle(cards, cards + N);        
+}
 
-	return cards;
+int getMaxPayoff(int* cards, int N)
+{
+	int maxPayoff = 0;
+	int Payoff = 0;
+
+	// Here we check payoff at each step and keep the maximum
+	for (int i = 0; i < N; i++)
+	{
+		Payoff += (cards[i] ? 1 : -1);
+		maxPayoff = max(Payoff, maxPayoff);
+	}
+		
+	return maxPayoff;
 }

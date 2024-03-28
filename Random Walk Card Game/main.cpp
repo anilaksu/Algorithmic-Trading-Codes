@@ -17,9 +17,9 @@ void getNumberofCards(int& N);
 void checkEven(int N);
 void checkAnswer(string& answer);
 void continuePlaying(string& answer);
-int factorial(int n);
 void getRandomCards(int* cards, int N);
-int getMaxPayoff(int* cards, int N);
+int getMaxPayoff(const int N);
+
 
 int main() {
 
@@ -27,20 +27,10 @@ int main() {
 	bool keepPlaying = true;     // Here we enable the end user keep playing
 	string answer;				 // It is the answer from the user to choose to play or not to play 
 
-
-	
-	//for ( int i = 0; i < N ; i++)
-	//	cout << (cards[i] ? "Red" : "Green") << endl;
-
 	while (keepPlaying)
 	{
-		getNumberofCards(N);		 // Here we get number of cards from the user
-		int* cards = new int[N];     // Random green and red cards
-		getRandomCards(cards, N);    // Here we create number of random green and red cards
-
-		cout << "Your maximum payoff is: " << getMaxPayoff(cards, N) << endl; // Maximum payoff output
-		delete[] cards;				// Here we delete the cards array so that the end user can set the number of cards again
-		cards = nullptr;			// Here we set it to null pointer to avoid memory leakage
+		getNumberofCards(N);	     // Here we get number of cards from the user
+		cout << "Your maximum payoff is: " << getMaxPayoff(N) << endl; 
 
 		continuePlaying(answer);	// Here we check if the user wants to keep playing
 
@@ -57,8 +47,10 @@ int main() {
 void checkEven(int N)				// Throws exceptions for the number of cards
 {
 
-	if (N % 2 == 1)
+	if (N % 2 == 1 )
 		throw invalid_argument("Odd number passed in!");
+	else if (N  == 0)
+		throw invalid_argument("You can't play with zero cards!");
 	else 
 		cout << "You have " << N << " cards!" << endl;
 
@@ -108,30 +100,26 @@ void continuePlaying(string& answer)		// Checks if the user wants to play again
 	}
 }
 
-int factorial(int n)
-{
-	// single line to find factorial 
-	return (n == 1 || n == 0) ? 1 : n * factorial(n - 1);
-}
-
-
 void getRandomCards(int* cards, int N)
 {	
 	// Providing a seed value
 	srand((unsigned)time(NULL));
 
-	// Here we store 1 as red and 0 as green
-	for (int i = 0; i < N; i++)
-		cards[i] = (i < N/2 ? false : true); 
-	
 	// Here we randomly shuffle the cards
 	random_shuffle(cards, cards + N);        
 }
 
-int getMaxPayoff(int* cards, int N)
+int getMaxPayoff(const int N)
 {
 	int maxPayoff = 0;
 	int Payoff = 0;
+	int* cards = new int[N];				 // Cards array with N size
+
+	// Here we store 1 as red and 0 as green
+	for (int i = 0; i < N; i++)
+		cards[i] = (i < N / 2 ? false : true);
+
+	getRandomCards(cards, N);				// Here we create number of random green and red cards
 
 	// Here we check payoff at each step and keep the maximum
 	for (int i = 0; i < N; i++)
@@ -139,6 +127,9 @@ int getMaxPayoff(int* cards, int N)
 		Payoff += (cards[i] ? 1 : -1);
 		maxPayoff = max(Payoff, maxPayoff);
 	}
+
+	delete[] cards;				// Here we delete the cards array so that the end user can set the number of cards again
+	cards = nullptr;			// Here we set it to null pointer to avoid memory leakage
 		
 	return maxPayoff;
 }
